@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <payment>
+
+            <paymentez_module>
+                <title>Credit Cards</title>
+                <model>Paymentez\Module\Model\Payment</model>
+                <active>0</active>
+                <staging_mode>1</staging_mode>
+                <staging_client_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <staging_server_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <production_client_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <production_server_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <payment_action>authorize</payment_action>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <cctypes>AE,VI,MC</cctypes>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_capture_partial>1</can_capture_partial>
+                <currency>MXN</currency>
+                <can_use_checkout>1</can_use_checkout>
+                <can_deny_payment>1</can_deny_payment>
+                <can_review_payment>1</can_review_payment>
+                <allowspecific>0</allowspecific>
+                <min_order_total>0.50</min_order_total>
+                <order_status>processing</order_status>
+                <is_gateway>0</is_gateway>
+                <masked_fields>cvv,number</masked_fields>
+            </paymentez_module>
+
+        </payment>
+    </default>
+</config>
