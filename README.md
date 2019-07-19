@@ -15,7 +15,7 @@ See example below
 	"respositories": [
 		{
           "type": "vcs",
-          "url": "https://cristian-paymentez@bitbucket.org/cristian-paymentez/paymentez-magento2.git"
+          "url": "https://github.com/paymentez/pg-magento-plugin.git"
         }
 	]
 ...
@@ -23,7 +23,7 @@ See example below
 
 **Straightforward path**:
 
-`composer config repositories.paymentez vcs https://cristian-paymentez@bitbucket.org/cristian-paymentez/paymentez-magento2.git`
+`composer config repositories.paymentez vcs https://github.com/paymentez/pg-magento-plugin.git`
 
 Now execute this command for install our package:
 
