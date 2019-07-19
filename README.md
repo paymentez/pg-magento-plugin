@@ -1,8 +1,14 @@
-## Paymentez - Magento 2
+# Paymentez Magento module
+===================
 
-### Instalación
+This module is a solution that allows Magento users to easily process credit card payments.
 
-Se require agregar el repositorio del código a tu archivo `composer.json`
+## Installation
+
+First of all you need add our repository in your `composer.json` file.
+
+See example below
+
 
 ```js
 ...
@@ -15,25 +21,26 @@ Se require agregar el repositorio del código a tu archivo `composer.json`
 ...
 ```
 
-También se puede configurar vía shell:
+**Straightforward path**:
 
 `composer config repositories.paymentez vcs https://cristian-paymentez@bitbucket.org/cristian-paymentez/paymentez-magento2.git`
 
-Posterior a esto se requiere instalar el módulo:
+Now execute this command for install our package:
 
 `composer require paymentez/magento2`
 
-Al finalizar la ejecución de composer se necesita ejecutar los siguientes comandos de Magento para que reconozca el módulo de Paymentez.
+Once the installation is finished execute the next commands in your bash terminal.
 
 ```bash
-# Actuliazar la inyección de dependencias
+# Update dependency injection
 php bin/magento setup:di:compile
 
-# Actulizar el registro de los módulos en Magento
+# Update module registry
 php bin/magento setup:upgrade
 
-# Este último comando es opcional para ambientes productivos
+# This command is optional for production environments
 php bin/magento setup:static-content:deploy
 ```
 
-Una vez terminado la ejecución de los últimos comandos podrás acceder a la configuración del módulo de Paymentez en el administrado de Magento `Stores > Configuration > Sales > Payment Methods`
+Now you can see the Paymentez settings in this path `Stores > Configuration > Sales > Payment Methods` on your Magento admin dashboard.
+
