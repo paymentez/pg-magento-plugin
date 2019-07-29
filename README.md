@@ -1,5 +1,4 @@
 # Paymentez Magento module
-===================
 
 This module is a solution that allows Magento users to easily process credit card payments.
 
@@ -12,12 +11,12 @@ See example below
 
 ```js
 ...
-	"respositories": [
-		{
-          "type": "vcs",
-          "url": "https://github.com/paymentez/pg-magento-plugin.git"
+    "respositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/paymentez/pg-magento-plugin.git"
         }
-	]
+    ]
 ...
 ```
 
@@ -43,4 +42,19 @@ php bin/magento setup:static-content:deploy
 ```
 
 Now you can see the Paymentez settings in this path `Stores > Configuration > Sales > Payment Methods` on your Magento admin dashboard.
+
+
+## Fraud notifications via webhook
+
+When Paymentez detect a possible fraud we use notifications through webhook for notify to Magento Admin for make an update the order state and status.
+
+The webhook path by default is:
+
+`/V1/paymentez/notification/listener`
+
+So, the possible fraud notifications can be send to:
+
+`https://magentodomain.com/V1/paymentez/notification/listener`
+
+
 
