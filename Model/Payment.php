@@ -100,11 +100,20 @@ class Payment extends Cc
         }
 
 		try {
-            $this->_service->capture($transactionId, floatval($amount));
+            $capture = $this->_service->capture($transactionId, floatval($amount));
         } catch (PaymentezErrorException $paymentezError) {
             $this->debug($payment->getData(), $paymentezError->getMessage());
 
             throw new MagentoValidatorException(__('Payment capturing error.'));
+        }
+
+        if ($capture->transaction->status !== "success") {
+            $msg = isset($charge->transaction->status_detail) 
+                    && !empty($charge->transaction->status_detail) ? $charge->transaction->status_detail : "Payment authorize error.'";
+
+            $this->debug($charge, $msg);
+
+            throw new MagentoValidatorException(__($msg));
         }
 
         $payment->setIsTransactionClosed(1);

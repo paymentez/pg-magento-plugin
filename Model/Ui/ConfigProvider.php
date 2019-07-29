@@ -81,7 +81,7 @@ class ConfigProvider implements ConfigProviderInterface
             return $this;
         }
 
-        return false;
+        throw new MagentoValidatorException(__("Undefined property {$name}"));
     }
 
     /**
