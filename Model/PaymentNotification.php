@@ -24,7 +24,10 @@ class PaymentNotification implements PaymentNotificationInterface
     */
     protected $response;
 
-    protected $objectManager;
+    /**
+    * @var \Magento\Sales\Model\Order
+    */
+    protected $order;
 
     /**
     * CustomerAddress constructor.
@@ -32,11 +35,11 @@ class PaymentNotification implements PaymentNotificationInterface
     * @param \Magento\Framework\App\ResponseInterface $response
     */
     public function __construct(RequestInterface $request,
-        ResponseInterface $response)
+        ResponseInterface $response, Order $order)
     {
         $this->request = $request;
         $this->response = $response;
-        $this->objectManager = ObjectManager::getInstance();
+        $this->order = $order;
     }
 
     /**
@@ -62,7 +65,6 @@ class PaymentNotification implements PaymentNotificationInterface
             ]));
         } else {
             $transactionRequested = $params->transaction;
-            $order = $this->objectManager->create(Order::class);
             $orderId = $transactionRequested->dev_reference;
 
             if (empty($orderId)) {
@@ -80,7 +82,7 @@ class PaymentNotification implements PaymentNotificationInterface
                     $message = $transactionRequested->message;
                     $orderComment = "<strong>[PAYMENTEZ]</strong>:Main Status: {$transactionStatus}, Status detail: {$statusDetail}, Additional comment: {$message}.";
 
-                    $order->loadByIncrementId($transactionRequested->dev_reference);
+                    $order = $this->order->loadByIncrementId($transactionRequested->dev_reference);
                     $payment = $order->getPayment();
 
                     $order->setSate(Order::STATE_PENDING_PAYMENT);
