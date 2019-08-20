@@ -32,7 +32,7 @@ use Magento\Framework\Api\{
 class Payment extends Cc
 {
     const METHOD_CODE                       = 'paymentez_module';
- 
+
     protected $_code                    	= self::METHOD_CODE;
     protected $_isGateway                   = true;
     protected $_canCapture                  = true;
@@ -43,7 +43,7 @@ class Payment extends Cc
     protected $_typesCards;
     protected $eventManager;
     protected $_service;
- 
+
     public function __construct(
         Context $context,
         Registry $registry,
@@ -71,13 +71,13 @@ class Payment extends Cc
             null,
             $data
         );
- 
+
         $this->_code = self::METHOD_CODE;
         $this->_minOrderTotal = $this->getConfigData('min_order_total');
         $this->_typesCards = $this->getConfigData('cctypes');
         $this->eventManager = $eventManager;
     }
- 
+
     public function canUseForCurrency($currencyCode)
     {
         if (!in_array($currencyCode, $this->_supportedCurrencyCodes)) {
@@ -86,7 +86,7 @@ class Payment extends Cc
 
         return true;
     }
- 
+
     public function capture(InfoInterface $payment, $amount)
 	{
 		$this->initPaymentezSdk();
@@ -108,7 +108,7 @@ class Payment extends Cc
         }
 
         if ($capture->transaction->status !== "success") {
-            $msg = isset($charge->transaction->status_detail) 
+            $msg = isset($charge->transaction->status_detail)
                     && !empty($charge->transaction->status_detail) ? $charge->transaction->status_detail : "Payment authorize error.'";
 
             $this->debug($charge, $msg);
@@ -133,16 +133,17 @@ class Payment extends Cc
 
         $orderDetails = [
         	'amount' => floatval($amount),
-        	'description' => sprintf('Payment of order #%s, Customer email: %s', 
-        		$order->getIncrementId(), 
-        		$order->getCustomerEmail()),
+        	'description' => $this->sliceText(sprintf('Payment of order #%s, Customer email: %s Shipping method: %s',
+                $order->getIncrementId(),
+                $order->getCustomerEmail(),
+                $orden->getShippingMethod()), 247),
         	'dev_reference' => $order->getIncrementId(),
         	'vat' => 0.00
         ];
 
         try {
-        	$charge = $this->_service->authorize($this->getCardToken(), 
-        		$orderDetails, 
+        	$charge = $this->_service->authorize($this->getCardToken(),
+        		$orderDetails,
         		$userDetails);
         } catch (PaymentezErrorException $paymentezError) {
             $this->debug($payment->getData(), $paymentezError->getMessage());
@@ -153,7 +154,7 @@ class Payment extends Cc
         $status = $charge->transaction->status;
 
         if ($status !== "success") {
-        	$msg = isset($charge->transaction->status_detail) 
+        	$msg = isset($charge->transaction->status_detail)
         			&& !empty($charge->transaction->status_detail) ? $charge->transaction->status_detail : "Payment authorize error.'";
 
         	$this->debug($charge, $msg);
@@ -166,29 +167,29 @@ class Payment extends Cc
         $payment->setParentTransactionId($transactionId);
         $payment->setTransactionId($transactionId);
         $payment->setIsTransactionClosed(0);
- 
+
         return $this;
     }
- 
+
     public function refund(InfoInterface $payment, $amount)
     {
     	$this->initPaymentezSdk();
 
     	$transactionId = $payment->getParentTransactionId();
-        
+
         try {
         	$this->_service->refund($transactionId, floatval($amount));
         } catch (PaymentezErrorException $e) {
         	$this->debug($payment->getData(), $paymentezError->getMessage());
             throw new MagentoValidatorException(__('Payment refunding error.'));
         }
- 
+
         $payment
             ->setTransactionId($transactionId . '-' . Transaction::TYPE_REFUND)
             ->setParentTransactionId($transactionId)
             ->setIsTransactionClosed(1)
             ->setShouldCloseParentTransaction(1);
- 
+
         return $this;
     }
 
@@ -196,7 +197,7 @@ class Payment extends Cc
     {
         return self::ACTION_AUTHORIZE_CAPTURE;
     }
- 
+
     public function isAvailable(CartInterface $quote = null){
         $this->_minOrderTotal = $this->getConfigData('min_order_total');
 
@@ -225,7 +226,7 @@ class Payment extends Cc
 	            AbstractDataAssignObserver::DATA_CODE => $data
 	        ]
 	    );
-	 
+
 	    return $this;
 	}
 
@@ -370,5 +371,14 @@ class Payment extends Cc
         }
 
         return $cardToken;
+    }
+
+    private function sliceText(string $text, int $maxchar, string $end = '...'): string
+    {
+        if (strlen($text) > $maxchar) {
+            $text = substr($text, 0, $maxchar) . '...';
+        }
+
+        return $text;
     }
 }
