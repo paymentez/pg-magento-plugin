@@ -90,7 +90,6 @@ class Payment extends Cc
     public function capture(InfoInterface $payment, $amount)
 	{
 		$this->initPaymentezSdk();
-
 		//check if payment has been authorized
 		$transactionId = $payment->getParentTransactionId();
 
@@ -103,15 +102,14 @@ class Payment extends Cc
             $capture = $this->_service->capture($transactionId, floatval($amount));
         } catch (PaymentezErrorException $paymentezError) {
             $this->debug($payment->getData(), $paymentezError->getMessage());
-
             throw new MagentoValidatorException(__('Payment capturing error.'));
         }
 
         if ($capture->transaction->status !== "success") {
-            $msg = isset($charge->transaction->status_detail)
-                    && !empty($charge->transaction->status_detail) ? $charge->transaction->status_detail : "Payment authorize error.'";
+            $msg = isset($capture->transaction->message)
+                    && !empty($capture->transaction->message) ? $capture->transaction->message : "Payment capture error.";
 
-            $this->debug($charge, $msg);
+            $this->debug($capture, $msg);
 
             throw new MagentoValidatorException(__($msg));
         }
@@ -132,13 +130,13 @@ class Payment extends Cc
         ];
 
         $orderDetails = [
-        	'amount' => floatval($amount),
-        	'description' => $this->sliceText(sprintf('Payment of order #%s, Customer email: %s Shipping method: %s',
+            'amount' => floatval($amount),
+            'description' => $this->sliceText(sprintf('Payment of order #%s, Customer email: %s Shipping method: %s',
                 $order->getIncrementId(),
                 $order->getCustomerEmail(),
-                $orden->getShippingMethod()), 247),
-        	'dev_reference' => $order->getIncrementId(),
-        	'vat' => 0.00
+                $order->getShippingMethod()), 247),
+            'dev_reference' => $order->getIncrementId(),
+            'vat' => 0.00
         ];
 
         try {
@@ -147,7 +145,6 @@ class Payment extends Cc
         		$userDetails);
         } catch (PaymentezErrorException $paymentezError) {
             $this->debug($payment->getData(), $paymentezError->getMessage());
-
             throw new MagentoValidatorException(__('Payment authorize error.'));
         }
 
