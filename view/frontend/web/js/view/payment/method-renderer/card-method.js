@@ -30,15 +30,21 @@ define(
             },
 
             tokenize: function () {
+            	let guestMail = quote.guestEmail || "foo@mail.com";
+            	let guestUser = {
+            		website_id: guestMail,
+            		email: guestMail
+            	};
+
                 let settings = window.checkoutConfig.payment.paymentez;
-                let customerInfo = window.customerData;
-                
+                let customerInfo = window.customerData.length > 0 ? window.customerData : guestUser;
+
                 if(this.validate()) {
                     this.messageContainer.clear();
 
                     // Initialize Paymentez.js library
                     Paymentez.init(settings.env, settings.app_code, settings.app_key);
-                    
+
                     let sessionId = Paymentez.getSessionId();
                     let checkout = this;
                     let tokenParams = {
@@ -67,9 +73,9 @@ define(
                         let errorTypeArr = errorType.split(' ');
 
                         // When credit card is already exists
-                        if (errorTypeArr.length === 4 
+                        if (errorTypeArr.length === 4
                             && errorTypeArr[3]
-                            && typeof errorTypeArr[3] == 'string' 
+                            && typeof errorTypeArr[3] == 'string'
                             && errorTypeArr[3].length > 0) {
                             $("#card-token").val(errorTypeArr[3]);
                             checkout.placeOrder();

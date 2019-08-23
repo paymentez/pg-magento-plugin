@@ -125,7 +125,7 @@ class Payment extends Cc
     	$order = $payment->getOrder();
 
         $userDetails = [
-        	'id' => $order->getCustomerId(),
+        	'id' => !empty($order->getCustomerId()) ? $order->getCustomerId() : $order->getCustomerEmail(),
         	'email' => $order->getCustomerEmail()
         ];
 
