@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a44e6268d2441cdc82a21eb41abb620f",
+    "content-hash": "f7afa146221b9b54de83ccbe7bbd7bae",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -194,17 +194,96 @@
             "time": "2019-07-01T23:21:34+00:00"
         },
         {
-            "name": "paymentez/sdk",
-            "version": "1.0.0",
+            "name": "magento/magento-composer-installer",
+            "version": "0.1.13",
             "source": {
                 "type": "git",
-                "url": "https://bitbucket.org/cristian-paymentez/paymentez-php-sdk.git",
-                "reference": "eca52c1884dea493898b836ebf27f2f7521e2f7e"
+                "url": "https://github.com/magento/magento-composer-installer.git",
+                "reference": "8b6c32f53b4944a5d6656e86344cd0f9784709a1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://bitbucket.org/cristian-paymentez/paymentez-php-sdk/get/eca52c1884dea493898b836ebf27f2f7521e2f7e.zip",
-                "reference": "eca52c1884dea493898b836ebf27f2f7521e2f7e",
+                "url": "https://api.github.com/repos/magento/magento-composer-installer/zipball/8b6c32f53b4944a5d6656e86344cd0f9784709a1",
+                "reference": "8b6c32f53b4944a5d6656e86344cd0f9784709a1",
+                "shasum": ""
+            },
+            "require": {
+                "composer-plugin-api": "^1.0"
+            },
+            "replace": {
+                "magento-hackathon/magento-composer-installer": "*"
+            },
+            "require-dev": {
+                "composer/composer": "*@dev",
+                "firegento/phpcs": "dev-patch-1",
+                "mikey179/vfsstream": "*",
+                "phpunit/phpunit": "*",
+                "phpunit/phpunit-mock-objects": "dev-master",
+                "squizlabs/php_codesniffer": "1.4.7",
+                "symfony/process": "*"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "composer-command-registry": [
+                    "MagentoHackathon\\Composer\\Magento\\Command\\DeployCommand"
+                ],
+                "class": "MagentoHackathon\\Composer\\Magento\\Plugin"
+            },
+            "autoload": {
+                "psr-0": {
+                    "MagentoHackathon\\Composer\\Magento": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "OSL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "Vinai Kopp",
+                    "email": "vinai@netzarbeiter.com"
+                },
+                {
+                    "name": "Daniel Fahlke aka Flyingmana",
+                    "email": "flyingmana@googlemail.com"
+                },
+                {
+                    "name": "Jörg Weller",
+                    "email": "weller@flagbit.de"
+                },
+                {
+                    "name": "Karl Spies",
+                    "email": "karl.spies@gmx.net"
+                },
+                {
+                    "name": "Tobias Vogt",
+                    "email": "tobi@webguys.de"
+                },
+                {
+                    "name": "David Fuhr",
+                    "email": "fuhr@flagbit.de"
+                }
+            ],
+            "description": "Composer installer for Magento modules",
+            "homepage": "https://github.com/magento/magento-composer-installer",
+            "keywords": [
+                "composer-installer",
+                "magento"
+            ],
+            "time": "2017-12-29T16:45:24+00:00"
+        },
+        {
+            "name": "paymentez/sdk",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/paymentez/pg-php-sdk.git",
+                "reference": "2de1e41b29a5d19e9ab664532de0d730cd8b9ca1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/paymentez/pg-php-sdk/zipball/2de1e41b29a5d19e9ab664532de0d730cd8b9ca1",
+                "reference": "2de1e41b29a5d19e9ab664532de0d730cd8b9ca1",
                 "shasum": ""
             },
             "require": {
@@ -227,8 +306,7 @@
                 }
             ],
             "description": "Paymentez PHP client",
-            "homepage": "https://bitbucket.org/cristian-paymentez/paymentez-php-sdk",
-            "time": "2019-07-09T15:25:04+00:00"
+            "time": "2019-08-22T23:04:11+00:00"
         },
         {
             "name": "psr/http-message",
