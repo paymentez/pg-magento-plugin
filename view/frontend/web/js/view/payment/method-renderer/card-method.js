@@ -30,6 +30,7 @@ define(
             },
 
             tokenize: function () {
+            	let customerInfo;
             	let guestMail = quote.guestEmail || "foo@mail.com";
             	let guestUser = {
             		website_id: guestMail,
@@ -37,7 +38,12 @@ define(
             	};
 
                 let settings = window.checkoutConfig.payment.paymentez;
-                let customerInfo = window.customerData.length > 0 ? window.customerData : guestUser;
+
+                if (Array.isArray(window.customerData) && window.customerData.length == 0) {
+                	customerInfo = guestUser;
+                } else {
+                	customerInfo = window.customerData;
+                }
 
                 if(this.validate()) {
                     this.messageContainer.clear();
