@@ -172,6 +172,13 @@ class Payment extends Cc
     {
     	$this->initPaymentezSdk();
 
+        $order = $payment->getOrder();
+        $grandTotal = $order->getGrandTotal();
+
+        if ($amount != $grandTotal) {
+            return $this;
+        }
+
     	$transactionId = $payment->getParentTransactionId();
 
         try {
