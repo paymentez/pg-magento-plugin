@@ -11,7 +11,7 @@ See example below
 
 ```js
 ...
-    "respositories": [
+    "repositories": [
         {
             "type": "vcs",
             "url": "https://github.com/paymentez/pg-magento-plugin.git"
