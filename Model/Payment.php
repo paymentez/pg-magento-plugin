@@ -39,7 +39,7 @@ class Payment extends Cc
     protected $_canCapturePartial           = true;
     protected $_canRefund                   = true;
     protected $_minOrderTotal 				= 0;
-    protected $_supportedCurrencyCodes 		= ['MXN', 'USD'];
+    protected $_supportedCurrencyCodes 		= ['BRL', 'COP', 'MXN', 'USD', 'CLP', 'ARS', 'VEF', 'PEN'];
     protected $_typesCards;
     protected $eventManager;
     protected $_service;
