@@ -7,7 +7,7 @@ define(
         'Magento_Checkout/js/model/quote',
         'Magento_Customer/js/model/customer',
         'Magento_Payment/js/model/credit-card-validation/validator',
-        'https://s3.amazonaws.com/cdn.paymentez.com/js/ccapi/stg/paymentez.magento.js'
+		'https://cdn.paymentez.com/ccapi/plugin/payment_magento_2.0.0.min.js'
     ],
     function (Component, $, quote, customer, validator) {
         'use strict';
@@ -30,6 +30,19 @@ define(
             },
 
             tokenize: function () {
+				const translateResponses = msg_response => {
+					let msg = 'Su tarjeta no es procesable.';
+					switch (msg_response) {
+						case 'RejectedByKount':
+							msg = 'Su tarjeta fue rechazada por el sistema antifraude.'
+							break;
+						case 'BlackListedCard':
+							msg = 'Su tarjeta fue rechazada por estar en lista negra.'
+							break;
+					}
+					return `${msg} Intente con otra para continuar.`
+				};
+
             	let customerInfo;
             	let guestMail = quote.guestEmail || "foo@mail.com";
             	let guestUser = {
@@ -48,10 +61,10 @@ define(
                 if(this.validate()) {
                     this.messageContainer.clear();
 
-                    // Initialize Paymentez.js library
-                    Paymentez.init(settings.env, settings.app_code, settings.app_key);
+                    // Initialize Payment.js library
+					Payment.init(settings.env, settings.app_code, settings.app_key);
 
-                    let sessionId = Paymentez.getSessionId();
+                    let sessionId = Payment.getSessionId();
                     let checkout = this;
                     let tokenParams = {
                           "session_id": sessionId,
@@ -66,14 +79,18 @@ define(
                             "expiry_month": parseInt(this.creditCardExpMonth()),
                             "expiry_year": parseInt(this.creditCardExpYear().replace(/ /g, '')),
                             "cvc": this.creditCardVerificationNumber(),
-                            "type": this.creditCardType().toLowerCase()
                           }
                     };
 
 
-                    Paymentez.createToken(tokenParams,  function (response) {
-                        $("#card-token").val(response.card.token);
-                        checkout.placeOrder();
+                    Payment.createToken(tokenParams,  function (response) {
+						if (response.card.status === 'valid') {
+							$("#card-token").val(response.card.token);
+							checkout.placeOrder();
+						} else {
+							let message = translateResponses(response.card.message)
+							return checkout.messageContainer.addErrorMessage({message});
+						}
                     }, function (err) {
                         let errorType = err.error.type;
                         let errorTypeArr = errorType.split(' ');
@@ -86,7 +103,8 @@ define(
                             $("#card-token").val(errorTypeArr[3]);
                             checkout.placeOrder();
                         } else {
-                            return checkout.messageContainer.addErrorMessage(err.error.help);
+							let message = err.error.help ? err.error.help : err.error.description;
+                            return checkout.messageContainer.addErrorMessage({message});
                         }
                     });
                 } else {
