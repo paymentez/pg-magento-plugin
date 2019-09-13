@@ -46,7 +46,7 @@ define(
             	let customerInfo;
             	let guestMail = quote.guestEmail || "foo@mail.com";
             	let guestUser = {
-            		website_id: guestMail,
+					id: guestMail,
             		email: guestMail
             	};
 
@@ -69,7 +69,7 @@ define(
                     let tokenParams = {
                           "session_id": sessionId,
                           "user": {
-                            "id": customerInfo.website_id,
+                            "id": customerInfo.id,
                             "email": customerInfo.email,
                             "fiscal_number": ""
                           },
