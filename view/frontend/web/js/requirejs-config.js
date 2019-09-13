@@ -1,5 +1,5 @@
 var config = {
  	paths: {
- 		'paymentez': "https://s3.amazonaws.com/cdn.paymentez.com/js/ccapi/stg/paymentez.magento.js"
+		'paymentez': "https://cdn.paymentez.com/ccapi/plugin/payment_magento_2.0.0.min.js"
  	}
 };

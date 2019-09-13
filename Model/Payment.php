@@ -99,7 +99,7 @@ class Payment extends Cc
         }
 
 		try {
-            $capture = $this->_service->capture($transactionId, floatval($amount));
+            $capture = $this->_service->capture((string) $transactionId, (float) $amount);
         } catch (PaymentezErrorException $paymentezError) {
             $this->debug($payment->getData(), $paymentezError->getMessage());
             throw new MagentoValidatorException(__('Payment capturing error.'));
@@ -123,10 +123,12 @@ class Payment extends Cc
     {
     	$this->initPaymentezSdk();
     	$order = $payment->getOrder();
+        $card_token = (string) $this->getCardToken();
+        $user_id = !empty($order->getCustomerId()) ? $order->getCustomerId() : $order->getCustomerEmail();
 
         $userDetails = [
-        	'id' => !empty($order->getCustomerId()) ? $order->getCustomerId() : $order->getCustomerEmail(),
-        	'email' => $order->getCustomerEmail()
+            'id' => (string) $user_id,
+            'email' => (string) $order->getCustomerEmail()
         ];
 
         $orderDetails = [
@@ -135,12 +137,12 @@ class Payment extends Cc
                 $order->getIncrementId(),
                 $order->getCustomerEmail(),
                 $order->getShippingMethod()), 247),
-            'dev_reference' => $order->getIncrementId(),
+            'dev_reference' => (string) $order->getIncrementId(),
             'vat' => 0.00
         ];
 
         try {
-        	$charge = $this->_service->authorize($this->getCardToken(),
+            $charge = $this->_service->authorize($card_token,
         		$orderDetails,
         		$userDetails);
         } catch (PaymentezErrorException $paymentezError) {
@@ -182,7 +184,7 @@ class Payment extends Cc
     	$transactionId = $payment->getParentTransactionId();
 
         try {
-        	$this->_service->refund($transactionId, floatval($amount));
+            $this->_service->refund((string) $transactionId, (float) $amount);
         } catch (PaymentezErrorException $e) {
         	$this->debug($payment->getData(), $paymentezError->getMessage());
             throw new MagentoValidatorException(__('Payment refunding error.'));
