@@ -10,9 +10,20 @@ class CcType extends CreditCardsBrands
     public function getAllowedTypes()
     {
         return [
+            'AE',
             'VI',
             'MC',
-            'AE'
+            'DI',
+            'DN',
+            'ELO',
+            'AU',
+            'CS',
+            'SO',
+            'EX',
+            'AK',
+            'CD',
+            'SX',
+            'JC'
         ];
     }
 }

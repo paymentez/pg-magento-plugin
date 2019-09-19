@@ -260,7 +260,18 @@ class Payment extends Cc
         $supportType = [
             "AE" => "American Express",
             "VI" => "Visa",
-            "MC" => "MasterCard"
+            "MC" => "MasterCard",
+            "DI" => "Discover",
+            "DN" => "Diners",
+            "ELO" => "Elo",
+            "AU" => "Aura",
+            "CS" => "Credisensa",
+            "SO" => "Solidario",
+            "EX" => "Exito",
+            "AK" => "Alkosto",
+            "CD" => "Codensa",
+            "SX" => "Sodexo",
+            "JC" => "JCB"
         ];
 
         $out = [];
