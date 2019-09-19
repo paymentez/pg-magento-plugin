@@ -7,9 +7,10 @@ define(
         'Magento_Checkout/js/model/quote',
         'Magento_Customer/js/model/customer',
         'Magento_Payment/js/model/credit-card-validation/validator',
-		'https://cdn.paymentez.com/ccapi/plugin/payment_magento_2.0.0.min.js'
+        'Magento_Checkout/js/model/full-screen-loader',
+        'https://cdn.paymentez.com/ccapi/plugin/payment_magento_2.0.0.min.js'
     ],
-    function (Component, $, quote, customer, validator) {
+    function (Component, $, quote, customer, validator, fullScreenLoader) {
         'use strict';
 
         return Component.extend({
@@ -17,80 +18,83 @@ define(
                 template: 'Paymentez_Module/payment/cc-form'
             },
 
-            getCode: function() {
+            getCode: function () {
                 return 'paymentez_module';
             },
 
-            context: function() {
+            context: function () {
                 return this;
             },
 
-            isActive: function() {
+            isActive: function () {
                 return window.checkoutConfig.payment.paymentez.is_active;
             },
 
             tokenize: function () {
-				const translateResponses = msg_response => {
-					let msg = 'Su tarjeta no es procesable.';
-					switch (msg_response) {
-						case 'RejectedByKount':
-							msg = 'Su tarjeta fue rechazada por el sistema antifraude.'
-							break;
-						case 'BlackListedCard':
-							msg = 'Su tarjeta fue rechazada por estar en lista negra.'
-							break;
-					}
-					return `${msg} Intente con otra para continuar.`
-				};
+                fullScreenLoader.startLoader();
+                const translateResponses = msg_response => {
+                    let msg = 'Su tarjeta no es procesable.';
+                    switch (msg_response) {
+                        case 'RejectedByKount':
+                            msg = 'Su tarjeta fue rechazada por el sistema antifraude.';
+                            break;
+                        case 'BlackListedCard':
+                            msg = 'Su tarjeta fue rechazada por estar en lista negra.';
+                            break;
+                    }
+                    return `${msg} Intente con otra para continuar.`
+                };
 
-            	let customerInfo;
-            	let guestMail = quote.guestEmail || "foo@mail.com";
-            	let guestUser = {
-					id: guestMail,
-            		email: guestMail
-            	};
+                let customerInfo;
+                let guestMail = quote.guestEmail || "foo@mail.com";
+                let guestUser = {
+                    id: guestMail,
+                    email: guestMail
+                };
 
                 let settings = window.checkoutConfig.payment.paymentez;
 
-                if (Array.isArray(window.customerData) && window.customerData.length == 0) {
-                	customerInfo = guestUser;
+                if (Array.isArray(window.customerData) && window.customerData.length === 0) {
+                    customerInfo = guestUser;
                 } else {
-                	customerInfo = window.customerData;
+                    customerInfo = window.customerData;
                 }
 
-                if(this.validate()) {
+                if (this.validate()) {
                     this.messageContainer.clear();
 
                     // Initialize Payment.js library
-					Payment.init(settings.env, settings.app_code, settings.app_key);
+                    Payment.init(settings.env, settings.app_code, settings.app_key);
 
                     let sessionId = Payment.getSessionId();
                     let checkout = this;
                     let tokenParams = {
-                          "session_id": sessionId,
-                          "user": {
+                        "session_id": sessionId,
+                        "user": {
                             "id": customerInfo.id,
                             "email": customerInfo.email,
                             "fiscal_number": ""
-                          },
-                          "card": {
+                        },
+                        "card": {
                             "number": this.creditCardNumber(),
                             "holder_name": $("#holder-name").val(),
                             "expiry_month": parseInt(this.creditCardExpMonth()),
                             "expiry_year": parseInt(this.creditCardExpYear().replace(/ /g, '')),
                             "cvc": this.creditCardVerificationNumber(),
-                          }
+                        }
                     };
 
 
-                    Payment.createToken(tokenParams,  function (response) {
-						if (response.card.status === 'valid') {
-							$("#card-token").val(response.card.token);
-							checkout.placeOrder();
-						} else {
-							let message = translateResponses(response.card.message)
-							return checkout.messageContainer.addErrorMessage({message});
-						}
+                    Payment.createToken(tokenParams, function (response) {
+                        if (response.card.status === 'valid') {
+                            $("#card-token").val(response.card.token);
+                            fullScreenLoader.stopLoader();
+                            checkout.placeOrder();
+                        } else {
+                            let message = translateResponses(response.card.message);
+                            fullScreenLoader.stopLoader();
+                            return checkout.messageContainer.addErrorMessage({message});
+                        }
                     }, function (err) {
                         let errorType = err.error.type;
                         let errorTypeArr = errorType.split(' ');
@@ -101,9 +105,11 @@ define(
                             && typeof errorTypeArr[3] == 'string'
                             && errorTypeArr[3].length > 0) {
                             $("#card-token").val(errorTypeArr[3]);
+                            fullScreenLoader.stopLoader();
                             checkout.placeOrder();
                         } else {
-							let message = err.error.help ? err.error.help : err.error.description;
+                            let message = err.error.help ? err.error.help : err.error.description;
+                            fullScreenLoader.stopLoader();
                             return checkout.messageContainer.addErrorMessage({message});
                         }
                     });
@@ -113,7 +119,7 @@ define(
             },
 
             getData: function () {
-                let number = this.creditCardNumber().replace(/\D/g,'');
+                let number = this.creditCardNumber().replace(/\D/g, '');
                 let data = {
                     'method': this.getCode(),
                     'additional_data': {
@@ -129,11 +135,11 @@ define(
                 return data;
             },
 
-            getTotal: function() {
+            getTotal: function () {
                 return parseFloat(window.checkoutConfig.payment.total);
             },
 
-            validate: function() {
+            validate: function () {
                 let cc_form = $('#' + this.getCode() + '-form');
                 return cc_form.validation() && cc_form.validation('isValid');
             }
