@@ -5,4 +5,48 @@
             <allow_multiple_address>1</allow_multiple_address>
         </method>
     </methods>
+    <credit_cards>
+        <type id="AE" order="0">
+            <label>American Express</label>
+        </type>
+        <type id="VI" order="10">
+            <label>Visa</label>
+        </type>
+        <type id="MC" order="20">
+            <label>MasterCard</label>
+        </type>
+        <type id="DI" order="30">
+            <label>Discover</label>
+        </type>
+        <type id="DN" order="40">
+            <label>Diners</label>
+        </type>
+        <type id="ELO" order="50">
+            <label>Elo</label>
+        </type>
+        <type id="AU" order="60">
+            <label>Aura</label>
+        </type>
+        <type id="CS" order="70">
+            <label>Credisensa</label>
+        </type>
+        <type id="SO" order="80">
+            <label>Solidario</label>
+        </type>
+        <type id="EX" order="90">
+            <label>Exito</label>
+        </type>
+        <type id="AK" order="100">
+            <label>Alkosto</label>
+        </type>
+        <type id="CD" order="110">
+            <label>Codensa</label>
+        </type>
+        <type id="SX" order="120">
+            <label>Sodexo</label>
+        </type>
+        <type id="JC" order="120">
+            <label>JCB</label>
+        </type>
+    </credit_cards>
 </payment>
