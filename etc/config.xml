@@ -14,7 +14,7 @@
                 <production_server_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
                 <payment_action>authorize</payment_action>
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
-                <cctypes>AE,VI,MC,DI,DN,ELO,AU,CS,SO,EX,AK,CD,SX,JC</cctypes>
+                <cctypes>AE,VI,MC,DN</cctypes>
                 <can_authorize>1</can_authorize>
                 <can_capture>1</can_capture>
                 <can_capture_partial>1</can_capture_partial>
