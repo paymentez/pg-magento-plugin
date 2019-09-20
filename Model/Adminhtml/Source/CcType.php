@@ -13,17 +13,7 @@ class CcType extends CreditCardsBrands
             'AE',
             'VI',
             'MC',
-            'DI',
-            'DN',
-            'ELO',
-            'AU',
-            'CS',
-            'SO',
-            'EX',
-            'AK',
-            'CD',
-            'SX',
-            'JC'
+            'DN'
         ];
     }
 }
