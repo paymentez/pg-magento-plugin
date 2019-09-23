@@ -3,6 +3,7 @@
 namespace Paymentez\Module\Model\Adminhtml\Source;
 
 use Magento\Framework\Option\ArrayInterface;
+use Magento\Payment\Model\MethodInterface;
 
 
 class PaymentAction implements ArrayInterface
@@ -14,15 +15,11 @@ class PaymentAction implements ArrayInterface
     {
         return [
             [
-                'value' => 'authorize',
+                'value' => MethodInterface::ACTION_AUTHORIZE,
                 'label' => __('Authorize')
             ],
             [
-                'value' => 'capture',
-                'label' => __('Capture')
-            ],
-            [
-                'value' => 'authorize_capture',
+                'value' => MethodInterface::ACTION_AUTHORIZE_CAPTURE,
                 'label' => __('Authorize & Capture')
             ]
         ];
