@@ -31,7 +31,6 @@ define(
             },
 
             tokenize: function () {
-                fullScreenLoader.startLoader();
                 const translateResponses = msg_response => {
                     let msg = 'Su tarjeta no es procesable.';
                     switch (msg_response) {
@@ -62,6 +61,7 @@ define(
 
                 if (this.validate()) {
                     this.messageContainer.clear();
+                    fullScreenLoader.startLoader();
 
                     // Initialize Payment.js library
                     Payment.init(settings.env, settings.app_code, settings.app_key);
