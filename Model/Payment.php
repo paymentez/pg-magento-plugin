@@ -20,26 +20,26 @@ use Magento\Payment\Observer\AbstractDataAssignObserver;
 use Paymentez\Paymentez;
 
 use Magento\Payment\Model\Method\{
-	Logger,
-	Cc
+    Logger,
+    Cc
 };
 
 use Magento\Framework\Api\{
-	ExtensionAttributesFactory,
-	AttributeValueFactory
+    ExtensionAttributesFactory,
+    AttributeValueFactory
 };
 
 class Payment extends Cc
 {
-    const METHOD_CODE                       = 'paymentez_module';
+    const METHOD_CODE = 'paymentez_module';
 
-    protected $_code                    	= self::METHOD_CODE;
-    protected $_isGateway                   = true;
-    protected $_canCapture                  = true;
-    protected $_canCapturePartial           = true;
-    protected $_canRefund                   = true;
-    protected $_minOrderTotal 				= 0;
-    protected $_supportedCurrencyCodes 		= ['BRL', 'COP', 'MXN', 'USD', 'CLP', 'ARS', 'VEF', 'PEN'];
+    protected $_code = self::METHOD_CODE;
+    protected $_isGateway = true;
+    protected $_canCapture = true;
+    protected $_canCapturePartial = true;
+    protected $_canRefund = true;
+    protected $_minOrderTotal = 0;
+    protected $_supportedCurrencyCodes = ['BRL', 'COP', 'MXN', 'USD', 'CLP', 'ARS', 'VEF', 'PEN'];
     protected $_typesCards;
     protected $eventManager;
     protected $_service;
@@ -56,7 +56,8 @@ class Payment extends Cc
         TimezoneInterface $localeDate,
         Manager $eventManager,
         array $data = []
-    ) {
+    )
+    {
         parent::__construct(
             $context,
             $registry,
@@ -88,18 +89,18 @@ class Payment extends Cc
     }
 
     public function capture(InfoInterface $payment, $amount)
-	{
-		$this->initPaymentezSdk();
-		//check if payment has been authorized
-		$transactionId = $payment->getParentTransactionId();
+    {
+        $this->initPaymentezSdk();
+        //check if payment has been authorized
+        $transactionId = $payment->getParentTransactionId();
 
-        if(is_null($transactionId)) {
+        if (is_null($transactionId)) {
             $this->authorize($payment, floatval($amount));
             $transactionId = $payment->getParentTransactionId();
         }
 
-		try {
-            $capture = $this->_service->capture((string) $transactionId, (float) $amount);
+        try {
+            $capture = $this->_service->capture((string)$transactionId, (float)$amount);
         } catch (PaymentezErrorException $paymentezError) {
             $this->debug($payment->getData(), $paymentezError->getMessage());
             throw new MagentoValidatorException(__('Payment capturing error.'));
@@ -107,7 +108,7 @@ class Payment extends Cc
 
         if ($capture->transaction->status !== "success") {
             $msg = isset($capture->transaction->message)
-                    && !empty($capture->transaction->message) ? $capture->transaction->message : "Payment capture error.";
+            && !empty($capture->transaction->message) ? $capture->transaction->message : "Payment capture error.";
 
             $this->debug($capture, $msg);
 
@@ -121,14 +122,14 @@ class Payment extends Cc
 
     public function authorize(InfoInterface $payment, $amount)
     {
-    	$this->initPaymentezSdk();
-    	$order = $payment->getOrder();
-        $card_token = (string) $this->getCardToken();
+        $this->initPaymentezSdk();
+        $order = $payment->getOrder();
+        $card_token = (string)$this->getCardToken();
         $user_id = !empty($order->getCustomerId()) ? $order->getCustomerId() : $order->getCustomerEmail();
 
         $userDetails = [
-            'id' => (string) $user_id,
-            'email' => (string) $order->getCustomerEmail()
+            'id' => (string)$user_id,
+            'email' => (string)$order->getCustomerEmail()
         ];
 
         $orderDetails = [
@@ -137,14 +138,14 @@ class Payment extends Cc
                 $order->getIncrementId(),
                 $order->getCustomerEmail(),
                 $order->getShippingMethod()), 247),
-            'dev_reference' => (string) $order->getIncrementId(),
+            'dev_reference' => (string)$order->getIncrementId(),
             'vat' => 0.00
         ];
 
         try {
             $charge = $this->_service->authorize($card_token,
-        		$orderDetails,
-        		$userDetails);
+                $orderDetails,
+                $userDetails);
         } catch (PaymentezErrorException $paymentezError) {
             $this->debug($payment->getData(), $paymentezError->getMessage());
             throw new MagentoValidatorException(__('Payment authorize error.'));
@@ -153,12 +154,12 @@ class Payment extends Cc
         $status = $charge->transaction->status;
 
         if ($status !== "success") {
-        	$msg = isset($charge->transaction->status_detail)
-        			&& !empty($charge->transaction->status_detail) ? $charge->transaction->status_detail : "Payment authorize error.'";
+            $msg = isset($charge->transaction->status_detail)
+            && !empty($charge->transaction->status_detail) ? $charge->transaction->status_detail : "Payment authorize error.'";
 
-        	$this->debug($charge, $msg);
+            $this->debug($charge, $msg);
 
-        	throw new MagentoValidatorException(__($msg));
+            throw new MagentoValidatorException(__($msg));
         }
 
         $transactionId = $charge->transaction->id;
@@ -172,7 +173,7 @@ class Payment extends Cc
 
     public function refund(InfoInterface $payment, $amount)
     {
-    	$this->initPaymentezSdk();
+        $this->initPaymentezSdk();
 
         $order = $payment->getOrder();
         $grandTotal = $order->getGrandTotal();
@@ -181,12 +182,12 @@ class Payment extends Cc
             return $this;
         }
 
-    	$transactionId = $payment->getParentTransactionId();
+        $transactionId = $payment->getParentTransactionId();
 
         try {
-            $this->_service->refund((string) $transactionId, (float) $amount);
+            $this->_service->refund((string)$transactionId, (float)$amount);
         } catch (PaymentezErrorException $e) {
-        	$this->debug($payment->getData(), $paymentezError->getMessage());
+            $this->debug($payment->getData(), $paymentezError->getMessage());
             throw new MagentoValidatorException(__('Payment refunding error.'));
         }
 
@@ -204,54 +205,55 @@ class Payment extends Cc
         return self::ACTION_AUTHORIZE_CAPTURE;
     }
 
-    public function isAvailable(CartInterface $quote = null){
+    public function isAvailable(CartInterface $quote = null)
+    {
         $this->_minOrderTotal = $this->getConfigData('min_order_total');
 
-        if($quote && $quote->getBaseGrandTotal() < $this->_minOrderTotal) {
+        if ($quote && $quote->getBaseGrandTotal() < $this->_minOrderTotal) {
             return false;
         }
 
         $credentials = $this->getServerCredentials();
 
         if (empty($credentials)) {
-        	return false;
+            return false;
         }
 
         return parent::isAvailable($quote);
     }
 
-	public function assignData(DataObject $data)
-	{
-		parent::assignData($data);
+    public function assignData(DataObject $data)
+    {
+        parent::assignData($data);
 
-	    $this->eventManager->dispatch(
-	        'payment_method_assign_data_' . $this->getCode(),
-	        [
-	            AbstractDataAssignObserver::METHOD_CODE => $this,
-	            AbstractDataAssignObserver::MODEL_CODE => $this->getInfoInstance(),
-	            AbstractDataAssignObserver::DATA_CODE => $data
-	        ]
-	    );
+        $this->eventManager->dispatch(
+            'payment_method_assign_data_' . $this->getCode(),
+            [
+                AbstractDataAssignObserver::METHOD_CODE => $this,
+                AbstractDataAssignObserver::MODEL_CODE => $this->getInfoInstance(),
+                AbstractDataAssignObserver::DATA_CODE => $data
+            ]
+        );
 
-	    return $this;
-	}
+        return $this;
+    }
 
     public function getClientCredentials(): array
     {
-    	$isStaging = boolval((integer) $this->getConfigData('staging_mode'));
+        $isStaging = boolval((integer)$this->getConfigData('staging_mode'));
 
-    	return $isStaging ? [
-    		'code' => $this->getConfigData('staging_client_code'),
-    		'api_key' => $this->getConfigData('staging_client_key')
-    	] : [
-    		'code' => $this->getConfigData('production_client_code'),
-    		'api_key' => $this->getConfigData('production_client_key')
-    	];
+        return $isStaging ? [
+            'code' => $this->getConfigData('staging_client_code'),
+            'api_key' => $this->getConfigData('staging_client_key')
+        ] : [
+            'code' => $this->getConfigData('production_client_code'),
+            'api_key' => $this->getConfigData('production_client_key')
+        ];
     }
 
     public function getClientEnvironment(): string
     {
-    	return boolval((integer) $this->getConfigData('staging_mode')) ? 'stg' : 'prod';
+        return boolval((integer)$this->getConfigData('staging_mode')) ? 'stg' : 'prod';
     }
 
     public function getActiveTypeCards()
@@ -289,14 +291,14 @@ class Payment extends Cc
         $errorMsg = false;
         $availableTypes = explode(',', $this->getConfigData('cctypes'));
         $binNumber = $info->getAdditionalInformation('cc_bin');
-        $last4 =  $info->getCcLast4();
+        $last4 = $info->getCcLast4();
         $ccNumber = $binNumber . $last4;
         $ccNumber = preg_replace('/[\-\s]+/', '', $ccNumber);
 
         $info->setCcNumber(implode('', [
-        	$ccNumber,
-        	"******",
-        	$last4
+            $ccNumber,
+            "******",
+            $last4
         ]));
 
         $ccType = '';
@@ -338,7 +340,7 @@ class Payment extends Cc
                 )) {
             $errorMsg = __(
                 'Custom Please enter a valid credit card expiration date.'
-                .$info->getCcType()
+                . $info->getCcType()
             );
         }
 
@@ -351,26 +353,26 @@ class Payment extends Cc
 
     private function getServerCredentials(): array
     {
-    	$isStaging = boolval((integer) $this->getConfigData('staging_mode'));
+        $isStaging = boolval((integer)$this->getConfigData('staging_mode'));
 
-    	return $isStaging ? [
-    		'code' => $this->getConfigData('staging_server_code'),
-    		'api_key' => $this->getConfigData('staging_server_key')
-    	] : [
-    		'code' => $this->getConfigData('production_server_code'),
-    		'api_key' => $this->getConfigData('production_server_key')
-    	];
+        return $isStaging ? [
+            'code' => $this->getConfigData('staging_server_code'),
+            'api_key' => $this->getConfigData('staging_server_key')
+        ] : [
+            'code' => $this->getConfigData('production_server_code'),
+            'api_key' => $this->getConfigData('production_server_key')
+        ];
     }
 
     private function initPaymentezSdk()
     {
-    	$isProduction = boolval((integer) $this->getConfigData('staging_mode')) ? false : true;
+        $isProduction = boolval((integer)$this->getConfigData('staging_mode')) ? false : true;
 
-    	// Initalize Paymentez SDK
+        // Initalize Paymentez SDK
         $credentials = $this->getServerCredentials();
 
         if (empty($credentials)) {
-        	throw new MagentoValidatorException(__('[Paymentez]: Missing client credentials.'));
+            throw new MagentoValidatorException(__('[Paymentez]: Missing client credentials.'));
         }
 
         Paymentez::init($credentials['code'], $credentials['api_key'], $isProduction);
@@ -380,8 +382,8 @@ class Payment extends Cc
 
     private function getCardToken(): string
     {
-    	$info = $this->getInfoInstance();
-    	$cardToken = $info->getAdditionalInformation('card_token');
+        $info = $this->getInfoInstance();
+        $cardToken = $info->getAdditionalInformation('card_token');
 
         if (!$cardToken) {
             throw new MagentoValidatorException(__('Missing card token.'));

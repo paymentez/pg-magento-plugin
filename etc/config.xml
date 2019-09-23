@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
         <payment>
 
@@ -8,10 +9,10 @@
                 <model>Paymentez\Module\Model\Payment</model>
                 <active>0</active>
                 <staging_mode>1</staging_mode>
-                <staging_client_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
-                <staging_server_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
-                <production_client_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
-                <production_server_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                <staging_client_key backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
+                <staging_server_key backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
+                <production_client_key backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
+                <production_server_key backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
                 <payment_action>authorize</payment_action>
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <cctypes>AE,VI,MC,DN</cctypes>
