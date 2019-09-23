@@ -4,12 +4,15 @@ This module is a solution that allows Magento users to easily process credit car
 
 ## Installation
 
+#### 1. Add to composer file 
+
 First of all you need add our repository in your `composer.json` file.
 
-See example below
+**Option A: Edit composer file**:
 
+If you can add the repository directly in file using some editor file. See example below:
 
-```js
+```
 ...
     "repositories": [
         {
@@ -20,28 +23,43 @@ See example below
 ...
 ```
 
-**Straightforward path**:
+**Option B: Composer config**:
+
+Or you can use a composer command to add it.
 
 `composer config repositories.paymentez vcs https://github.com/paymentez/pg-magento-plugin.git`
 
-Now execute this command for install our package:
 
-`composer require paymentez/magento2`
+#### 2. Download and installation
 
-Once the installation is finished execute the next commands in your bash terminal.
+**1. Now execute this command for install our package:**
 
-```bash
-# Update dependency injection
-php bin/magento setup:di:compile
+Install the latest version.  `composer require paymentez/magento2`
 
-# Update module registry
-php bin/magento setup:upgrade
+Install a specific version.  `composer require paymentez/magento2:1.1.9`
 
-# This command is optional for production environments
-php bin/magento setup:static-content:deploy
-```
+Once the installation is finished continue with the next commands in your bash terminal.
+
+**2. Update dependency injection:**
+
+`php bin/magento setup:di:compile`
+
+
+**3. Update modules registry:**
+
+`php bin/magento setup:upgrade`
+
+
+**Optional.- This command is optional for production environments:**
+
+`php bin/magento setup:static-content:deploy`
+
 
 Now you can see the Paymentez settings in this path `Stores > Configuration > Sales > Payment Methods` on your Magento admin dashboard.
+
+
+## Maintenance
+If you need update the plugin to latest version execute step 2 of Installation [here](#2.-download-and-installation)
 
 
 ## Fraud notifications via webhook

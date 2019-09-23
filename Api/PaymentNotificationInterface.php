@@ -5,12 +5,12 @@ namespace Paymentez\Module\Api;
 
 interface PaymentNotificationInterface
 {
-	/**
-	* Listener for Paymentez webhook
-	*
-	* @api
-	*
-	* @return \Magento\Framework\App\ResponseInterface
-	*/
-	public function notificate();
+    /**
+     * Listener for Paymentez webhook
+     *
+     * @return \Magento\Framework\App\ResponseInterface
+     * @api
+     *
+     */
+    public function notificate();
 }

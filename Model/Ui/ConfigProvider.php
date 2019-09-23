@@ -9,44 +9,44 @@ use Magento\Checkout\Model\Cart;
 use Magento\Framework\Validator\Exception as MagentoValidatorException;
 
 
-class ConfigProvider implements ConfigProviderInterface 
+class ConfigProvider implements ConfigProviderInterface
 {
     /**
      * @var array[]
      */
     protected $methodCodes = [
-        'paymentez_module'     
+        'paymentez_module'
     ];
 
     /**
      * @var \Magento\Payment\Model\Method\AbstractMethod[]
      */
     protected $methods = [];
-    
+
     /**
      * @var \Paymentez\Module\Model\Payment
      */
     protected $payment;
 
     /**
-    * @var Magento\Checkout\Model\Cart
-    */
+     * @var Magento\Checkout\Model\Cart
+     */
     protected $cart;
 
     /**
-    * @var
-    */
+     * @var
+     */
     private $config = [];
 
 
-    /**     
+    /**
      * @param PaymentHelper $paymentHelper
      * @param Paymentez\Module\\ModelPayment $payment
      * @param Magento\Checkout\Model\Cart $cart
      */
-    public function __construct(PaymentHelper $paymentHelper, 
-        Payment $payment, 
-        Cart $cart)
+    public function __construct(PaymentHelper $paymentHelper,
+                                Payment $payment,
+                                Cart $cart)
     {
 
         foreach ($this->methodCodes as $code) {
@@ -58,9 +58,9 @@ class ConfigProvider implements ConfigProviderInterface
     }
 
     /**
-    * Magic method
-    * @return mixed
-    */
+     * Magic method
+     * @return mixed
+     */
     public function __get($name)
     {
         if (property_exists($this, $name)) {
@@ -71,9 +71,9 @@ class ConfigProvider implements ConfigProviderInterface
     }
 
     /**
-    * Magic method
-    * @return object \Paymentez\Module\Model\Ui\ConfigProvider
-    */
+     * Magic method
+     * @return object \Paymentez\Module\Model\Ui\ConfigProvider
+     */
     public function __set($name, $value)
     {
         if (property_exists($this, $name)) {
@@ -89,7 +89,7 @@ class ConfigProvider implements ConfigProviderInterface
      * @return object \Paymentez\Module\Model\Ui\ConfigProvider
      */
     public function setConfig()
-    {                
+    {
         $config = [];
 
         foreach ($this->methodCodes as $code) {
@@ -115,7 +115,7 @@ class ConfigProvider implements ConfigProviderInterface
                 $config['payment']['ccform']["ssStartYears"][$code] = $this->getStartYears();
             }
         }
-                
+
         return $this->__set('config', $config);
     }
 
@@ -142,25 +142,26 @@ class ConfigProvider implements ConfigProviderInterface
         ];
     }
     
+
     private function getYears()
     {
         $years = [];
         $currentYear = (intval(date('Y')) - 1);
 
-        for($i=1; $i <= 15; $i++) {
-            $year = (string) ($currentYear + $i);
+        for ($i = 1; $i <= 15; $i++) {
+            $year = (string)($currentYear + $i);
             $years[$year] = $year;
         }
 
         return $years;
     }
-    
+
     private function getStartYears()
     {
         $years = [];
         $currentYear = intval(date("Y"));
 
-        for($i=5; $i >= 0; $i--) {
+        for ($i = 5; $i >= 0; $i--) {
             $year = ($currentYear - $i);
             $years["{$year}"] = "{$year}";
         }

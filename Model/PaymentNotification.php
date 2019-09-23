@@ -15,27 +15,27 @@ use Magento\Framework\App\{
 class PaymentNotification implements PaymentNotificationInterface
 {
     /**
-    * @var \Magento\Framework\App\RequestInterface
-    */
+     * @var \Magento\Framework\App\RequestInterface
+     */
     protected $request;
 
     /**
-    * @var \Magento\Framework\Controller\Result\JsonFactory
-    */
+     * @var \Magento\Framework\Controller\Result\JsonFactory
+     */
     protected $response;
 
     /**
-    * @var \Magento\Sales\Model\Order
-    */
+     * @var \Magento\Sales\Model\Order
+     */
     protected $order;
 
     /**
-    * CustomerAddress constructor.
-    * @param \Magento\Framework\App\RequestInterface $request
-    * @param \Magento\Framework\App\ResponseInterface $response
-    */
+     * CustomerAddress constructor.
+     * @param \Magento\Framework\App\RequestInterface $request
+     * @param \Magento\Framework\App\ResponseInterface $response
+     */
     public function __construct(RequestInterface $request,
-        ResponseInterface $response, Order $order)
+                                ResponseInterface $response, Order $order)
     {
         $this->request = $request;
         $this->response = $response;
@@ -43,12 +43,12 @@ class PaymentNotification implements PaymentNotificationInterface
     }
 
     /**
-    * Listener for Paymentez webhook
-    *
-    * @api
-    *
-    * @return \Magento\Framework\App\ResponseInterface
-    */
+     * Listener for Paymentez webhook
+     *
+     * @return \Magento\Framework\App\ResponseInterface
+     * @api
+     *
+     */
     public function notificate()
     {
         $rawContent = $this->request->getContent();

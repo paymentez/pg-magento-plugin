@@ -5,7 +5,7 @@
                class="radio"
                data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
         <label data-bind="attr: {'for': getCode()}" class="label"><span data-bind="text: getTitle()"></span></label>
-    </div>    
+    </div>
     <div class="payment-method-content">
         <!-- ko foreach: getRegion('messages') -->
         <!-- ko template: getTemplate() --><!-- /ko -->
@@ -16,17 +16,18 @@
             <!--/ko-->
         </div>
 
-        <form class="form" data-bind="attr: {'id': getCode() + '-form'}">    
-            <input type="hidden" id="card-token" />
+        <form class="form" data-bind="attr: {'id': getCode() + '-form'}">
+            <input type="hidden" id="card-token"/>
             <div class="field number required">
                 <label class="label" style="font-weight: 600;" for="holder_name">
                     <span>Nombre del títular</span><span style="color: #e02b27; font-size: 1.2rem; margin: 0 0 0 5px;">*</span>
                 </label>
                 <div class="control">
-                    <input type="text" id="holder-name" name="holder_name" class="input-text" style="width: 270px; margin: 8px 0 17px;" required="required">
+                    <input type="text" id="holder-name" name="holder_name" class="input-text" style="width: 270px; margin: 8px 0 17px;"
+                           required="required">
                 </div>
             </div>
-            <!-- ko template: 'Magento_Payment/payment/cc-form' --><!-- /ko -->  
+            <!-- ko template: 'Magento_Payment/payment/cc-form' --><!-- /ko -->
         </form>
 
         <div class="checkout-agreements-block">
