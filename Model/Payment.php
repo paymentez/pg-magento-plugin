@@ -2,33 +2,24 @@
 
 namespace Paymentez\Module\Model;
 
-use Magento\Framework\Model\Context;
-use Magento\Framework\Registry;
-use Magento\Payment\Helper\Data;
+use Magento\Framework\Api\{AttributeValueFactory, ExtensionAttributesFactory};
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Module\ModuleListInterface;
-use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
-use Magento\Sales\Model\Order\Payment\Transaction;
-use Magento\Quote\Api\Data\CartInterface;
 use Magento\Framework\DataObject;
-use Magento\Payment\Model\InfoInterface;
-use Magento\Framework\Validator\Exception as MagentoValidatorException;
-use Paymentez\Exceptions\PaymentezErrorException;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Event\Manager;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Model\Context;
+use Magento\Framework\Module\ModuleListInterface;
+use Magento\Framework\Registry;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
+use Magento\Framework\Validator\Exception as MagentoValidatorException;
+use Magento\Payment\Helper\Data;
+use Magento\Payment\Model\InfoInterface;
+use Magento\Payment\Model\Method\{Cc, Logger};
 use Magento\Payment\Observer\AbstractDataAssignObserver;
-use Paymentez\Module\Model\FooLogger;
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Sales\Model\Order\Payment\Transaction;
+use Paymentez\Exceptions\PaymentezErrorException;
 use Paymentez\Paymentez;
-
-use Magento\Payment\Model\Method\{
-    Logger,
-    Cc
-};
-
-use Magento\Framework\Api\{
-    ExtensionAttributesFactory,
-    AttributeValueFactory
-};
 
 class Payment extends Cc
 {
@@ -74,14 +65,14 @@ class Payment extends Cc
             null,
             $data
         );
+        $this->_code = self::METHOD_CODE;
 
-        $_logging = FALSE;
+        $_logging = boolval((integer)$this->getConfigData('dev_use_logs'));
         if (!$_logging) {
             $this->_logger = new FooLogger();
         }
         $this->_logger->info("Init Paymentez Constructor");
 
-        $this->_code = self::METHOD_CODE;
         $this->_minOrderTotal = $this->getConfigData('min_order_total');
         $this->_typesCards = $this->getConfigData('cctypes');
         $this->eventManager = $eventManager;

@@ -28,6 +28,7 @@
                 <order_status>processing</order_status>
                 <is_gateway>0</is_gateway>
                 <masked_fields>cvv,number</masked_fields>
+                <dev_use_logs>0</dev_use_logs>
             </paymentez_module>
 
         </payment>

@@ -8,7 +8,7 @@ define(
         'Magento_Customer/js/model/customer',
         'Magento_Payment/js/model/credit-card-validation/validator',
         'Magento_Checkout/js/model/full-screen-loader',
-        'https://cdn.paymentez.com/ccapi/plugin/payment_magento_2.0.0.min.js'
+        'https://cdn.paymentez.com/ccapi/plugin/payment_magento_2.0.1.min.js'
     ],
     function (Component, $, quote, customer, validator, fullScreenLoader) {
         'use strict';
