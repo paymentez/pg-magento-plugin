@@ -2,32 +2,24 @@
 
 namespace Paymentez\Module\Model;
 
-use Magento\Framework\Model\Context;
-use Magento\Framework\Registry;
-use Magento\Payment\Helper\Data;
+use Magento\Framework\Api\{AttributeValueFactory, ExtensionAttributesFactory};
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Module\ModuleListInterface;
-use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
-use Magento\Sales\Model\Order\Payment\Transaction;
-use Magento\Quote\Api\Data\CartInterface;
 use Magento\Framework\DataObject;
-use Magento\Payment\Model\InfoInterface;
-use Magento\Framework\Validator\Exception as MagentoValidatorException;
-use Paymentez\Exceptions\PaymentezErrorException;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Event\Manager;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Model\Context;
+use Magento\Framework\Module\ModuleListInterface;
+use Magento\Framework\Registry;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
+use Magento\Framework\Validator\Exception as MagentoValidatorException;
+use Magento\Payment\Helper\Data;
+use Magento\Payment\Model\InfoInterface;
+use Magento\Payment\Model\Method\{Cc, Logger};
 use Magento\Payment\Observer\AbstractDataAssignObserver;
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Sales\Model\Order\Payment\Transaction;
+use Paymentez\Exceptions\PaymentezErrorException;
 use Paymentez\Paymentez;
-
-use Magento\Payment\Model\Method\{
-    Logger,
-    Cc
-};
-
-use Magento\Framework\Api\{
-    ExtensionAttributesFactory,
-    AttributeValueFactory
-};
 
 class Payment extends Cc
 {
@@ -43,6 +35,7 @@ class Payment extends Cc
     protected $_typesCards;
     protected $eventManager;
     protected $_service;
+    protected $_currenciesThatSupportAuthorize = ['BRL', 'MXN', 'PEN'];
 
     public function __construct(
         Context $context,
@@ -72,8 +65,14 @@ class Payment extends Cc
             null,
             $data
         );
-
         $this->_code = self::METHOD_CODE;
+
+        $_logging = boolval((integer)$this->getConfigData('dev_use_logs'));
+        if (!$_logging) {
+            $this->_logger = new FooLogger();
+        }
+        $this->_logger->info("Init Paymentez Constructor");
+
         $this->_minOrderTotal = $this->getConfigData('min_order_total');
         $this->_typesCards = $this->getConfigData('cctypes');
         $this->eventManager = $eventManager;
@@ -81,29 +80,51 @@ class Payment extends Cc
 
     public function canUseForCurrency($currencyCode)
     {
+        $this->_logger->info("canUseForCurrency => $currencyCode");
         if (!in_array($currencyCode, $this->_supportedCurrencyCodes)) {
+            $this->_logger->error("Currency $currencyCode not allowed");
             return false;
         }
-
+        $this->_logger->info("Currency $currencyCode allowed");
         return true;
     }
 
     public function capture(InfoInterface $payment, $amount)
     {
+        $this->_logger->info("Starting capture");
         $this->initPaymentezSdk();
+
         //check if payment has been authorized
         $transactionId = $payment->getParentTransactionId();
 
         if (is_null($transactionId)) {
+            $this->_logger->info("Capture require authorize");
             $this->authorize($payment, floatval($amount));
             $transactionId = $payment->getParentTransactionId();
         }
 
+
+        // For currencies that not allow authorization, was used a debit, and the capture is not required
+        if (!$this->currencyAllowAuthorization($payment)) {
+            $this->_logger->info("Transactions does not apply for capture");
+            $order = $payment->getOrder();
+            $original_amount = $order->getGrandTotal();
+            $this->_logger->info("original_amount $$original_amount => amount $$amount");
+            if ($amount != $original_amount) {
+                $this->_logger->info("Different amounts");
+                throw new MagentoValidatorException(__("Transaction does not allow different amount for capture"));
+            }
+            $payment->setIsTransactionClosed(1);
+            return $this;
+        }
+
         try {
+            $this->_logger->info("Executing capture: $transactionId : $$amount");
             $capture = $this->_service->capture((string)$transactionId, (float)$amount);
+            $this->_logger->info("Capture Response => " . json_encode($capture));
         } catch (PaymentezErrorException $paymentezError) {
-            $this->debug($payment->getData(), $paymentezError->getMessage());
-            throw new MagentoValidatorException(__('Payment capturing error.'));
+            $this->_logger->error("Error in capture => " . $paymentezError->getMessage());
+            throw new MagentoValidatorException(__('Payment capturing error. Detail: ' . $paymentezError->getMessage()));
         }
 
         if ($capture->transaction->status !== "success") {
@@ -117,11 +138,18 @@ class Payment extends Cc
 
         $payment->setIsTransactionClosed(1);
 
+        $this->_logger->info("Finalize Capture");
         return $this;
     }
 
     public function authorize(InfoInterface $payment, $amount)
     {
+        $this->_logger->info("Starting authorize");
+        $AUTHORIZE = 'authorize';
+        $DEBIT = 'debit';
+        $service = $this->currencyAllowAuthorization($payment) ? $AUTHORIZE : $DEBIT;
+
+        $this->_logger->info("Service to use: $service");
         $this->initPaymentezSdk();
         $order = $payment->getOrder();
         $card_token = (string)$this->getCardToken();
@@ -142,37 +170,47 @@ class Payment extends Cc
             'vat' => 0.00
         ];
 
+        $this->_logger->info("Executing $service => token: $card_token, order: " . json_encode($orderDetails) .
+            ", user: " . json_encode($userDetails));
+
         try {
-            $charge = $this->_service->authorize($card_token,
-                $orderDetails,
-                $userDetails);
+            if ($service == $AUTHORIZE) {
+                $this->_logger->info("Executing authorize");
+                $response = $this->_service->authorize($card_token, $orderDetails, $userDetails);
+            } else {
+                $this->_logger->info("Executing debit (create)");
+                $response = $this->_service->create($card_token, $orderDetails, $userDetails);
+            }
+            $this->_logger->info("$service response => " . json_encode($response));
         } catch (PaymentezErrorException $paymentezError) {
-            $this->debug($payment->getData(), $paymentezError->getMessage());
-            throw new MagentoValidatorException(__('Payment authorize error.'));
+            $this->_logger->error("Error in $service => " . $paymentezError->getMessage());
+            throw new MagentoValidatorException(__("Payment $service error. Detail: " . $paymentezError->getMessage()));
         }
 
-        $status = $charge->transaction->status;
+        $status = $response->transaction->status;
 
         if ($status !== "success") {
-            $msg = isset($charge->transaction->status_detail)
-            && !empty($charge->transaction->status_detail) ? $charge->transaction->status_detail : "Payment authorize error.'";
+            $msg = isset($response->transaction->status_detail)
+            && !empty($response->transaction->status_detail) ? $response->transaction->status_detail : "Payment authorize error.'";
 
-            $this->debug($charge, $msg);
+            $this->debug($response, $msg);
 
             throw new MagentoValidatorException(__($msg));
         }
 
-        $transactionId = $charge->transaction->id;
+        $transactionId = $response->transaction->id;
 
         $payment->setParentTransactionId($transactionId);
         $payment->setTransactionId($transactionId);
         $payment->setIsTransactionClosed(0);
 
+        $this->_logger->info("Finalize $service");
         return $this;
     }
 
     public function refund(InfoInterface $payment, $amount)
     {
+        $this->_logger->info("Starting refund");
         $this->initPaymentezSdk();
 
         $order = $payment->getOrder();
@@ -184,11 +222,19 @@ class Payment extends Cc
 
         $transactionId = $payment->getParentTransactionId();
 
+        // This apply when parent transaction has a suffix, i.e.: VN-1234-capture
+        $transactionIdExploded = explode('-', $transactionId);
+        if (count($transactionIdExploded) > 2) {
+            $transactionId = "$transactionIdExploded[0]-$transactionIdExploded[1]";
+        }
+
         try {
-            $this->_service->refund((string)$transactionId, (float)$amount);
-        } catch (PaymentezErrorException $e) {
-            $this->debug($payment->getData(), $paymentezError->getMessage());
-            throw new MagentoValidatorException(__('Payment refunding error.'));
+            $this->_logger->info("Executing refund: $transactionId, amount: $$amount");
+            $refund = $this->_service->refund((string)$transactionId, (float)$amount);
+            $this->_logger->info("Refund response => " . json_encode($refund));
+        } catch (PaymentezErrorException $paymentezError) {
+            $this->_logger->error("Error in refund => " . $paymentezError->getMessage());
+            throw new MagentoValidatorException(__('Payment refund error. Detail: ' . $paymentezError->getMessage()));
         }
 
         $payment
@@ -197,28 +243,37 @@ class Payment extends Cc
             ->setIsTransactionClosed(1)
             ->setShouldCloseParentTransaction(1);
 
+        $this->_logger->info("Finalize Refund");
         return $this;
     }
 
+
     public function getConfigPaymentAction()
     {
-        return self::ACTION_AUTHORIZE_CAPTURE;
+        $payment_action = $this->getConfigData('payment_action');
+        $this->_logger->info("Payment Action => $payment_action");
+        return $payment_action;
     }
 
     public function isAvailable(CartInterface $quote = null)
     {
+        $this->_logger->info("Starting isAvailable");
         $this->_minOrderTotal = $this->getConfigData('min_order_total');
 
         if ($quote && $quote->getBaseGrandTotal() < $this->_minOrderTotal) {
+            $this->_logger->warning("Not isAvailable by invalid amount");
             return false;
         }
 
         $credentials = $this->getServerCredentials();
 
         if (empty($credentials)) {
+            $this->_logger->warning("Not isAvailable by empty credentials");
             return false;
         }
 
+        $validation = parent::isAvailable($quote);
+        $this->_logger->info("isAvailable => $validation");
         return parent::isAvailable($quote);
     }
 
@@ -258,6 +313,7 @@ class Payment extends Cc
 
     public function getActiveTypeCards()
     {
+        $this->_logger->info("Starting getActiveTypeCards");
         $activeTypes = explode(",", $this->_typesCards);
         $supportType = [
             "AE" => "American Express",
@@ -281,6 +337,9 @@ class Payment extends Cc
         foreach ($activeTypes AS $value) {
             $out[$value] = $supportType[$value];
         }
+        $this->_logger->info("activeTypes =>", $activeTypes);
+        $this->_logger->info("supportType =>", $supportType);
+        $this->_logger->info("out =>", $out);
 
         return $out;
     }
@@ -399,5 +458,17 @@ class Payment extends Cc
         }
 
         return $text;
+    }
+
+    private function currencyAllowAuthorization($payment)
+    {
+        $this->_logger->info('Validate if currency allow auth');
+        $order = $payment->getOrder();
+        $currency_code = $order->getOrderCurrencyCode();
+        $this->_logger->info("currency => $currency_code");
+        $allow = in_array($currency_code, $this->_currenciesThatSupportAuthorize);
+        $this->_logger->info("_currenciesThatSupportAuthorize => ", $this->_currenciesThatSupportAuthorize);
+        $this->_logger->info("allow => $allow");
+        return $allow;
     }
 }
