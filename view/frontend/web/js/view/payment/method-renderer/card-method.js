@@ -31,19 +31,6 @@ define(
             },
 
             tokenize: function () {
-                const translateResponses = msg_response => {
-                    let msg = 'Su tarjeta no es procesable.';
-                    switch (msg_response) {
-                        case 'RejectedByKount':
-                            msg = 'Su tarjeta fue rechazada por el sistema antifraude.';
-                            break;
-                        case 'BlackListedCard':
-                            msg = 'Su tarjeta fue rechazada por estar en lista negra.';
-                            break;
-                    }
-                    return `${msg} Intente con otra para continuar.`
-                };
-
                 let customerInfo;
                 let guestMail = quote.guestEmail || "foo@mail.com";
                 let guestUser = {
@@ -91,7 +78,7 @@ define(
                             fullScreenLoader.stopLoader();
                             checkout.placeOrder();
                         } else {
-                            let message = translateResponses(response.card.message);
+                            let message = `Lo sentimos, tu pago no pudo ser procesado. (code: ${response.card.transaction_reference})`;
                             fullScreenLoader.stopLoader();
                             return checkout.messageContainer.addErrorMessage({message});
                         }

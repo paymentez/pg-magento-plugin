@@ -128,8 +128,8 @@ class Payment extends Cc
         }
 
         if ($capture->transaction->status !== "success") {
-            $msg = isset($capture->transaction->message)
-            && !empty($capture->transaction->message) ? $capture->transaction->message : "Payment capture error.";
+            $error_code = isset($capture->transaction->status_detail) && !empty($capture->transaction->status_detail) ? $capture->transaction->status_detail : "ERR-CP";
+            $msg = "Lo sentimos, tu pago no pudo ser procesado. (code: $error_code)";
 
             $this->debug($capture, $msg);
 
@@ -190,8 +190,8 @@ class Payment extends Cc
         $status = $response->transaction->status;
 
         if ($status !== "success") {
-            $msg = isset($response->transaction->status_detail)
-            && !empty($response->transaction->status_detail) ? $response->transaction->status_detail : "Payment authorize error.'";
+            $error_code = isset($response->transaction->status_detail) && !empty($response->transaction->status_detail) ? $response->transaction->status_detail : "ERR-CP";
+            $msg = "Lo sentimos, tu pago no pudo ser procesado. (code: $error_code)";
 
             $this->debug($response, $msg);
 
