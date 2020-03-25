@@ -2,37 +2,9 @@
 
 This module is a solution that allows Magento users to easily process credit card payments.
 
-## Installation
+## Download and Installation
 
-#### 1. Add to composer file 
-
-First of all you need add our repository in your `composer.json` file.
-
-**Option A: Edit composer file**:
-
-If you can add the repository directly in file using some editor file. See example below:
-
-```
-...
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/paymentez/pg-magento-plugin.git"
-        }
-    ]
-...
-```
-
-**Option B: Composer config**:
-
-Or you can use a composer command to add it.
-
-`composer config repositories.paymentez vcs https://github.com/paymentez/pg-magento-plugin.git`
-
-
-#### 2. Download and installation
-
-**1. Now execute this command for install our package:**
+**1. Execute this command for install our package:**
 
 Install the latest version.  `composer require paymentez/magento2`
 
