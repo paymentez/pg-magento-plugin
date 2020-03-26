@@ -17,6 +17,7 @@ use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Model\Method\{Cc, Logger};
 use Magento\Payment\Observer\AbstractDataAssignObserver;
 use Magento\Quote\Api\Data\CartInterface;
+use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\Transaction;
 use Paymentez\Exceptions\PaymentezErrorException;
 use Paymentez\Paymentez;
@@ -188,6 +189,7 @@ class Payment extends Cc
         }
 
         $status = $response->transaction->status;
+        $transactionId = $response->transaction->id;
 
         if ($status !== "success") {
             $error_code = isset($response->transaction->status_detail) && !empty($response->transaction->status_detail) ? $response->transaction->status_detail : "ERR-CP";
@@ -198,11 +200,15 @@ class Payment extends Cc
             throw new MagentoValidatorException(__($msg));
         }
 
-        $transactionId = $response->transaction->id;
-
         $payment->setParentTransactionId($transactionId);
         $payment->setTransactionId($transactionId);
         $payment->setIsTransactionClosed(0);
+
+        $card_type = $response->card->type;
+        $card_number = $response->card->bin . "-xxxx-" . $response->card->number;
+        $auth_code = $response->transaction->authorization_code;
+        $comment = "Transaction ID: $transactionId|| Brand Code: $card_type || Number Card: $card_number|| Authorization Code: $auth_code";
+        $order->addStatusHistoryComment($comment, $order->getStatus());
 
         $this->_logger->info("Finalize $service");
         return $this;
