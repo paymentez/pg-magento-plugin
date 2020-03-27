@@ -27,6 +27,22 @@
                            required="required">
                 </div>
             </div>
+
+            <div class="required" data-bind="visible: allowInstallments()">
+                <label class="label" style="font-weight: 600;" for="installments">
+                    <span>Cuotas</span><span style="color: #e02b27; font-size: 1.2rem; margin: 0 0 0 5px;">*</span>
+                </label>
+                <div class="control">
+                    <select
+                            data-bind="options: getAvailableInstallments(getTotal()),
+                            optionsValue: 'value',
+                            optionsText: 'text'"
+                            id="installments" name="installments"
+                            class="input-select" style="width: 270px; margin: 8px 0 17px;" required="required">
+                    </select>
+                </div>
+            </div>
+
             <!-- ko template: 'Magento_Payment/payment/cc-form' --><!-- /ko -->
         </form>
 

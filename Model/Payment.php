@@ -161,6 +161,9 @@ class Payment extends Cc
             'email' => (string)$order->getCustomerEmail()
         ];
 
+        $installments = $this->getInfoInstance()->getAdditionalInformation('installments');
+        $installments = isset($installments) && $installments > 0 ? $installments : 1;
+
         $orderDetails = [
             'amount' => floatval($amount),
             'description' => $this->sliceText(sprintf('Payment of order #%s, Customer email: %s Shipping method: %s',
@@ -168,7 +171,8 @@ class Payment extends Cc
                 $order->getCustomerEmail(),
                 $order->getShippingMethod()), 247),
             'dev_reference' => (string)$order->getIncrementId(),
-            'vat' => 0.00
+            'vat' => 0.00,
+            'installments' => (int)$installments
         ];
 
         $this->_logger->info("Executing $service => token: $card_token, order: " . json_encode($orderDetails) .
@@ -207,7 +211,8 @@ class Payment extends Cc
         $card_type = $response->card->type;
         $card_number = $response->card->bin . "-xxxx-" . $response->card->number;
         $auth_code = $response->transaction->authorization_code;
-        $comment = "Transaction ID: $transactionId|| Brand Code: $card_type || Number Card: $card_number|| Authorization Code: $auth_code";
+        $installments = $response->transaction->installments;
+        $comment = "Transaction ID: $transactionId|| Brand Code: $card_type || Number Card: $card_number|| Authorization Code: $auth_code || Installments: $installments";
         $order->addStatusHistoryComment($comment, $order->getStatus());
 
         $this->_logger->info("Finalize $service");
