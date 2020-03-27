@@ -42,21 +42,15 @@ class DataAssignObserver extends AbstractDataAssignObserver
         }
 
         $cardToken = $additionalData->getData('card_token');
+        $installments = $additionalData->getData('installments');
 
         if (empty($cardToken)) {
             throw new MagentoValidatorException(__("[PAYMENTEZ] Missing card token."));
         }
 
-        $payment->setAdditionalInformation(
-            'card_token',
-            $cardToken
-        );
-
-        $payment->setAdditionalInformation(
-            'cc_bin',
-            $additionalData->getData('cc_bin')
-        );
-
+        $payment->setAdditionalInformation('card_token',$cardToken);
+        $payment->setAdditionalInformation('installments',$installments);
+        $payment->setAdditionalInformation('cc_bin',$additionalData->getData('cc_bin'));
         $payment->setCcLast4($additionalData->getData('cc_last_4'));
         $payment->setCcType($additionalData->getData('cc_type'));
         $payment->setCcExpMonth($additionalData->getData('cc_exp_month'));

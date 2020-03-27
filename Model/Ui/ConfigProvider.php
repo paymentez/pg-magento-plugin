@@ -113,6 +113,7 @@ class ConfigProvider implements ConfigProviderInterface
                 $config['payment']['ccform']["years"][$code] = $this->getYears();
                 $config['payment']['ccform']["cvvImageUrl"][$code] = "https://www.ekwb.com/shop/skin/frontend/base/default/images/cvv.gif";
                 $config['payment']['ccform']["ssStartYears"][$code] = $this->getStartYears();
+                $config['payment']['ccform']["allow_installments"] = (int)$this->payment->getConfigData('allow_installments');
             }
         }
 
@@ -141,7 +142,7 @@ class ConfigProvider implements ConfigProviderInterface
             '12' => "12 - Diciembre"
         ];
     }
-    
+
 
     private function getYears()
     {

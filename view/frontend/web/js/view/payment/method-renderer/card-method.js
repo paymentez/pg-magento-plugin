@@ -115,7 +115,8 @@ define(
                         'cc_exp_month': this.creditCardExpMonth(),
                         'cc_bin': number.substring(0, 6),
                         'cc_last_4': number.substring((number.length - 4), number.length),
-                        'card_token': $("#card-token").val()
+                        'card_token': $("#card-token").val(),
+                        'installments': $("#installments").val()
                     }
                 };
 
@@ -129,7 +130,30 @@ define(
             validate: function () {
                 let cc_form = $('#' + this.getCode() + '-form');
                 return cc_form.validation() && cc_form.validation('isValid');
+            },
+
+            allowInstallments: function() {
+                return Boolean(window.checkoutConfig.payment.ccform.allow_installments);
+            },
+
+            getAvailableInstallments: function (amount) {
+                function Installment(value, text) {
+                    this.value = value;
+                    this.text = text;
+                };
+
+                let installments = [
+                    new Installment(undefined, '¿En cuantas cuotas deseas pagar?'),
+                    new Installment(1, `Total - $ ${amount}`)
+                ];
+
+                for (var i = 2; i <= 36; i++) {
+                    installments.push(new Installment(i, `${i} cuotas`));
+                }
+
+                return installments;
             }
+
         });
     }
 );
