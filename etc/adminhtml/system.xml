@@ -38,11 +38,11 @@
                 <!-- // Client settings // -->
 
                 <!-- Server settings -->
-                <field id="staging_server_code" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="0"
+                <field id="staging_server_code" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1"
                        showInStore="0">
                     <label>Staging Server Application Code</label>
                 </field>
-                <field id="staging_server_key" translate="label" type="obscure" sortOrder="30" showInDefault="1" showInWebsite="0"
+                <field id="staging_server_key" translate="label" type="obscure" sortOrder="30" showInDefault="1" showInWebsite="1"
                        showInStore="0">
                     <label>Staging Server Application Key</label>
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
@@ -63,11 +63,11 @@
                 </field>
                 <!-- // Client settings // -->
                 <!-- Server settings -->
-                <field id="production_server_code" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="0"
+                <field id="production_server_code" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1"
                        showInStore="0">
                     <label>Production Server Application Code</label>
                 </field>
-                <field id="production_server_key" translate="label" type="obscure" sortOrder="30" showInDefault="1" showInWebsite="0"
+                <field id="production_server_key" translate="label" type="obscure" sortOrder="30" showInDefault="1" showInWebsite="1"
                        showInStore="0">
                     <label>Production Server Application Key</label>
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
