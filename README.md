@@ -8,18 +8,19 @@ This module is a solution that allows Magento users to easily process credit car
 
 Install the latest version.  `composer require paymentez/magento2`
 
-Install a specific version.  `composer require paymentez/magento2:1.1.9`
+Install a specific version.  `composer require paymentez/magento2:1.2`
 
 Once the installation is finished continue with the next commands in your bash terminal.
 
-**2. Update dependency injection:**
 
-`php bin/magento setup:di:compile`
-
-
-**3. Update modules registry:**
+**2. Update modules registry:**
 
 `php bin/magento setup:upgrade`
+
+
+**3. Update dependency injection:**
+
+`php bin/magento setup:di:compile`
 
 
 **Optional.- This command is optional for production environments:**
@@ -31,8 +32,7 @@ Now you can see the Paymentez settings in this path `Stores > Configuration > Sa
 
 
 ## Maintenance
-If you need update the plugin to latest version execute step 2 of Installation [here](#2.-download-and-installation)
-
+If you need update the plugin to latest version execute: `composer update paymentez/magento2`
 
 ## Fraud notifications via webhook
 
