@@ -3,7 +3,7 @@
     "description": "Paymentez magento 2 integration.",
     "require": {
         "magento/magento-composer-installer": "^0.1.13",
-        "paymentez/sdk": "1.1.0"
+        "paymentez/sdk": "^1"
     },
     "authors": [
         {
@@ -12,7 +12,7 @@
         }
     ],
     "type": "magento2-module",
-    "version": "1.3",
+    "version": "1.4",
     "license": [
         "OSL-3.0",
         "AFL-3.0"
